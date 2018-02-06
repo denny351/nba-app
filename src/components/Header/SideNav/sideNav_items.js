@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import FontAwesome from 'react-fontawesome';
 import style from './sideNav.css';
 
-const SideNavItems = () => {
+const SideNavItems = (props) => {
 	const items = [
 		{
 			type: style.option,
@@ -42,7 +42,7 @@ const SideNavItems = () => {
 		return items.map((item, i) => {
 			return (
 				<div key={i} className={item.type}>
-					<Link to={item.link}>
+					<Link to={item.link} onClick={props.onHideNav}>
 						<FontAwesome name={item.icon} />
 						{item.text}
 					</Link>

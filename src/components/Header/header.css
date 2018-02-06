@@ -9,9 +9,10 @@
 
 .logo {
   flex-grow: 1;
-  padding-top: 8px;
+  padding-top: 12px;
+  margin-left: 1px;
 }
 
-.logo {
-  width: 35px;
+.logo img {
+  height: 31px;
 }
