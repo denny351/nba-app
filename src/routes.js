@@ -10,17 +10,20 @@ import VideosMain from './components/Articles/Videos/Main/index';
 import SignIn from './components/SignIn/signIn';
 import Dashboard from './components/Dashboard/dashboard';
 
+import PrivateRoutes from './components/AuthRoutes/privateRoutes';
+import PublicRoutes from './components/AuthRoutes/publicRoutes';
+
 const Routes = (props) => {
   return (
     <Layout user={props.user}>
       <Switch>
-        <Route path="/" exact component={Home} />
-        <Route path="/news" exact component={NewsMain} />
-        <Route path="/videos" exact component={VideosMain} />
-        <Route path="/articles/:id" exact component={NewsArticle} />
-        <Route path="/videos/:id" exact component={VideoArticle} />
-        <Route path="/sign-in" exact component={SignIn} />
-        <Route path="/dashboard" exact component={Dashboard} />
+        <PublicRoutes {...props}path="/" exact restricted={false} component={Home} />
+        <PublicRoutes {...props}path="/news" exact restricted={false} component={NewsMain} />
+        <PublicRoutes {...props}path="/videos" exact restricted={false} component={VideosMain} />
+        <PublicRoutes {...props}path="/articles/:id" exact restricted={false} component={NewsArticle} />
+        <PublicRoutes {...props}path="/videos/:id" exact restricted={false} component={VideoArticle} />
+        <PublicRoutes {...props} path="/sign-in" exact restricted={true} component={SignIn} />
+        <PrivateRoutes {...props} path="/dashboard" exact component={Dashboard} />
       </Switch>
     </Layout>
   );
