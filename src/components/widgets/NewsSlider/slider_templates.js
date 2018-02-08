@@ -3,13 +3,16 @@ import { Link } from 'react-router-dom';
 
 import Slick from 'react-slick';
 import styles from './slider.css';
+import { NextArrow, PrevArrow } from './slickArrows';
 
 const SliderTemplates = props => {
 	let template = null;
 	const settings = {
 		dots: true,
 		infinite: true,
-		arrows: false,
+    arrows: true,
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevArrow />,
 		speed: 500,
 		slidesToShow: 1,
     slidesToScroll: 1,
