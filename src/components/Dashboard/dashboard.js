@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { firebaseTeams } from '../../firebase';
+import { firebaseTeams, firebaseArticles, firebase } from '../../firebase';
 import { Editor } from 'react-draft-wysiwyg';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
@@ -54,9 +54,9 @@ class Dashboard extends Component {
 				value: '',
 				valid: true
 			},
-			teams: {
+			team: {
 				element: 'select',
-				value: '',
+				value: '0',
 				config: {
 					name: 'teams_input',
 					options: []
@@ -77,19 +77,19 @@ class Dashboard extends Component {
 
 	loadTeams = () => {
 		firebaseTeams.once('value').then(snapshot => {
-			let teams = [];
+			let team = [];
 			snapshot.forEach(childSnapshot => {
-				teams.push({
+				team.push({
 					id: childSnapshot.val().teamId,
 					name: childSnapshot.val().city
 				});
 			});
 
 			const newFormdata = { ...this.state.formdata };
-			const newElement = { ...newFormdata['teams'] };
+			const newElement = { ...newFormdata['team'] };
 
-			newElement.config.options = teams;
-			newFormdata['teams'] = newElement;
+			newElement.config.options = team;
+			newFormdata['team'] = newElement;
 			this.setState({ formdata: newFormdata });
 		});
 	};
@@ -142,7 +142,27 @@ class Dashboard extends Component {
 		}
 
 		if (formIsValid) {
-			console.log('submited');
+      this.setState({loading: true, postError: ''});
+      firebaseArticles.orderByChild("id").limitToLast(1).once('value')
+        .then(snapshot => {
+          let articleId = null;
+          snapshot.forEach(childSnapshot => {
+            articleId = childSnapshot.val().id;
+          });
+
+          dataToSubmit['date'] = firebase.database.ServerValue.TIMESTAMP;
+          dataToSubmit['id'] = articleId + 1;
+          dataToSubmit['team'] = parseInt(dataToSubmit['team']);
+
+          firebaseArticles.push(dataToSubmit)
+            .then(article => {
+              this.props.history.push(`/articles/${article.key}`);
+            }).catch(error => {
+              this.setState({ postError: error.message });
+            })
+        })
+        console.log(dataToSubmit);
+
 		} else {
 			this.setState({
 				postError: 'Something went wrong'
@@ -196,8 +216,8 @@ class Dashboard extends Component {
 						onEditorStateChange={this.onEditorStateChange}
 					/>
 					<FormField
-						id={'teams'}
-						formdata={this.state.formdata.teams}
+						id={'team'}
+						formdata={this.state.formdata.team}
 						change={element => this.updateForm(element)}
 					/>
 					{this.submitButton()}
