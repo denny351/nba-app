@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Link } from 'react-router-dom';
-import { firebaseTeams, firebaseArticles, firebaseLooper } from '../../../firebase';
+import { firebase, firebaseTeams, firebaseArticles, firebaseLooper } from '../../../firebase';
 
 import styles from './newsList.css';
 import Button from '../../widgets/Buttons/buttons';
@@ -32,18 +32,32 @@ class NewsList extends Component {
     firebaseArticles.orderByChild('id').startAt(start).endAt(end).once('value')
       .then((snapshot) => {
         const articles = firebaseLooper(snapshot);
-        this.setState({
-          items: [...this.state.items, ...articles],
-          start,
-          end
+
+        const asyncFunction = (item, i, cb) => {
+          firebase.storage().ref('images').child(item.image).getDownloadURL()
+            .then(url => {
+              articles[i].image = url;
+              cb();
+            })
+        }
+        let requests = articles.map((item, i) => {
+          return new Promise((resolve) => {
+            asyncFunction(item, i, resolve)
+          })
         })
-      })
-      .catch(error => {
-        console.log(error);
+
+        Promise.all(requests).then(() => {
+          this.setState({
+            items: [...this.state.items, ...articles],
+            start,
+            end
+          });
+        })
       })
 	};
 
 	loadMore = () => {
+    console.log('hello')
 		let end = this.state.end + this.state.amount;
 		this.request(this.state.end + 1, end);
 	};
@@ -92,7 +106,7 @@ class NewsList extends Component {
               <div className={styles.flex_wrapper}>
                <div className={styles.left}
                 style={{
-                  background: `url('/images/articles/${item.image}')`
+                  background: `url(${item.image})`
                 }}>
                   <div></div>
                 </div>
