@@ -57,7 +57,6 @@ class NewsList extends Component {
 	};
 
 	loadMore = () => {
-    console.log('hello')
 		let end = this.state.end + this.state.amount;
 		this.request(this.state.end + 1, end);
 	};
